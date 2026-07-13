@@ -157,7 +157,7 @@ function Add() {
 			<div className="mx-auto max-w-7xl">
 				<div className="overflow-hidden bg-zinc-800 border border-zinc-700">
 					{/* Navigation Bar */}
-					<div className="flex justify-evenly text-zinc-400 font-semibold">
+					<div className="flex justify-evenly text-zinc-400 font-semibold overflow-x-auto">
 						{Object.values(TABS).map((tab) => {
 							const isActive = activeTab === tab.id;
 							return (
