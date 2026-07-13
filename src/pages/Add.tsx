@@ -51,7 +51,7 @@ function ManualTab() {
 	};
 
 	return (
-		<section className="w-full p-6 border border-zinc-700 bg-zinc-800/50 backdrop-blur-sm">
+		<section className="w-fullbg-zinc-800/50 backdrop-blur-sm">
 			<p className="text-xs uppercase tracking-wider text-zinc-500 font-bold mb-1">Step 2</p>
 			<h2 className="text-xl font-bold text-zinc-100 mb-6">Add a paint code</h2>
 
@@ -68,7 +68,7 @@ function ManualTab() {
 						onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
 							updateForm('manufacturer', e.target.value)
 						}
-						className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-amber-500 transition duration-200"
+						className="w-full input"
 						required
 					/>
 				</div>
@@ -85,7 +85,7 @@ function ManualTab() {
 						onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
 							updateForm('code', e.target.value)
 						}
-						className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-amber-500 transition duration-200"
+						className="w-full input"
 						required
 					/>
 				</div>
@@ -102,7 +102,7 @@ function ManualTab() {
 						onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
 							updateForm('name', e.target.value)
 						}
-						className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-amber-500 transition duration-200"
+						className="w-full input"
 					/>
 				</div>
 
@@ -129,16 +129,14 @@ function ManualTab() {
 							onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
 								updateForm('hex', e.target.value)
 							}
-							className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-amber-500 transition duration-200 font-mono"
+							className="w-full input font-mono"
 							required
 						/>
 					</div>
 				</div>
 
 				<div className="pt-2">
-					<button
-						type="submit"
-						className="w-full sm:w-auto px-5 py-2.5 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-zinc-900 font-bold shadow-md transition duration-200">
+					<button type="submit" className="btn btn-primary">
 						Add to deck
 					</button>
 				</div>
@@ -153,48 +151,46 @@ function Add() {
 	const [activeTab, setActiveTab] = useState<string>(TABS.manual.id);
 
 	return (
-		<div className="min-h-[calc(100vh-80px)] p-8 bg-grid-soft">
-			<div className="mx-auto max-w-7xl">
-				<div className="overflow-hidden bg-zinc-800 border border-zinc-700">
-					{/* Navigation Bar */}
-					<div className="flex justify-evenly text-zinc-400 font-semibold overflow-x-auto">
-						{Object.values(TABS).map((tab) => {
-							const isActive = activeTab === tab.id;
-							return (
-								<button
-									key={tab.id}
-									type="button"
-									className={`w-full text-center cursor-pointer duration-300 transition p-4 min-w-32 ${
-										isActive ? 'bg-zinc-700 text-amber-400' : 'hover:text-amber-400'
-									}`}
-									// Updating the activeTab ID handles everything
-									onClick={() => setActiveTab(tab.id)}>
-									{tab.label}
-								</button>
-							);
-						})}
-					</div>
+		<div className="container-max py-12">
+			<div className="overflow-hidden card">
+				{/* Navigation Bar */}
+				<div className="flex justify-evenly text-zinc-400 font-semibold overflow-x-auto">
+					{Object.values(TABS).map((tab) => {
+						const isActive = activeTab === tab.id;
+						return (
+							<button
+								key={tab.id}
+								type="button"
+								className={`w-full text-center cursor-pointer duration-300 transition p-4 min-w-32 ${
+									isActive ? 'bg-zinc-700 text-amber-400' : 'hover:text-amber-400'
+								}`}
+								// Updating the activeTab ID handles everything
+								onClick={() => setActiveTab(tab.id)}>
+								{tab.label}
+							</button>
+						);
+					})}
+				</div>
 
-					{/* Tab Content Window */}
-					<div className="bg-zinc-800/50 backdrop-blur-sm p-8">
-						{Object.values(TABS).map((tab) => {
-							const isActive = activeTab === tab.id;
+				{/* Tab Content Window */}
+				<div className="bg-zinc-800/50 backdrop-blur-sm p-16">
+					{Object.values(TABS).map((tab) => {
+						const isActive = activeTab === tab.id;
 
-							// 1. Return null immediately if not active to avoid vertical layout bloating
-							if (!isActive) return null;
+						// 1. Return null immediately if not active to avoid vertical layout bloating
+						if (!isActive) return null;
 
-							const TabContentComponent = tab.component;
+						const TabContentComponent = tab.component;
 
-							return (
-								<div
-									key={tab.id}
-									// 2. Kept relative so the parent can naturally calculate height
-									className="w-full transition-all duration-300 ease-in-out opacity-100 translate-x-0">
-									<TabContentComponent />
-								</div>
-							);
-						})}
-					</div>
+						return (
+							<div
+								key={tab.id}
+								// 2. Kept relative so the parent can naturally calculate height
+								className="w-full transition-all duration-300 ease-in-out opacity-100 translate-x-0">
+								<TabContentComponent />
+							</div>
+						);
+					})}
 				</div>
 			</div>
 		</div>

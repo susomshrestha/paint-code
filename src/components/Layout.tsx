@@ -5,7 +5,7 @@ function Layout() {
 	return (
 		<div className="mx-auto bg-zinc-900">
 			<NavBar />
-			<div>
+			<div className='bg-grid-soft'>
 				<Outlet />
 			</div>
 		</div>
