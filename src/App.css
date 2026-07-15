@@ -55,7 +55,7 @@
 		cursor: pointer;
 
 		&:hover {
-			border-color: var(--color-red-300);
+			border-color: var(--color-zinc-400);
 		}
 	}
 

@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useCallback, useState } from 'react';
-
 const INITIAL_ENTRIES = [
 	{ id: 'p001', manufacturer: 'Toyota', code: '040', name: 'Super White', hex: '#F0F1ED' },
 	{
@@ -30,19 +27,32 @@ const INITIAL_ENTRIES = [
 	{ id: 'p014', manufacturer: 'Tesla', code: 'PPMR', name: 'Multi-Coat Red', hex: '#A6120D' },
 ];
 
-interface Score {
+import { useCallback, useState } from 'react';
+
+interface PaintEntry {
+	id: string;
+	manufacturer: string;
+	code: string;
+	name?: string | null;
+	hex: string;
+}
+
+interface PlayerScore {
 	name: string;
 	score: number;
 }
 
-interface Entry {
-	id: string;
-	manufacturer: string;
-	code: string;
-	hex: string;
+interface RoundAnswer {
+	playerIdx: number;
+	chosenId: string;
+	correct: boolean;
 }
 
-function shuffledCopy(arr: any) {
+type Phase = 'setup' | 'round' | 'final';
+
+const ROUND_OPTIONS = [3, 5, 10, 15];
+
+function shuffledCopy<T>(arr: T[]): T[] {
 	const a = [...arr];
 	for (let i = a.length - 1; i > 0; i--) {
 		const j = Math.floor(Math.random() * (i + 1));
@@ -51,49 +61,122 @@ function shuffledCopy(arr: any) {
 	return a;
 }
 
-function Game() {
-	const [entries] = useState(INITIAL_ENTRIES);
-	const [phase, setPhase] = useState('setup');
-	const [players, setPlayerNames] = useState(['Player 1', 'Player 2']);
+export default function Game() {
+	const [entries] = useState<PaintEntry[]>(INITIAL_ENTRIES);
+	const [loadError] = useState('');
 
-	const [roundsPerPlayer, setRoundsPerPlayer] = useState(5);
+	const [playerNames, setPlayerNames] = useState<string[]>(['', '']);
+	const [totalRounds, setTotalRounds] = useState(5);
+
+	const [phase, setPhase] = useState<Phase>('setup');
+	const [scores, setScores] = useState<PlayerScore[]>([]);
+	const [roundNum, setRoundNum] = useState(0);
+	const [questionQueue, setQuestionQueue] = useState<PaintEntry[]>([]);
+	const [currentEntry, setCurrentEntry] = useState<PaintEntry | null>(null);
+	const [choices, setChoices] = useState<PaintEntry[]>([]);
 
 	const [currentPlayerIdx, setCurrentPlayerIdx] = useState(0);
-	const [scores, setScores] = useState<Score[]>([]);
-	const [totalRounds, setTotalRounds] = useState(0);
-	const [roundNum, setRoundNum] = useState(0);
-	const [currentEntry, setCurrentEntry] = useState<Entry>({
-		id: '',
-		manufacturer: '',
-		code: '',
-		hex: '',
-	});
-	const [choices, setChoices] = useState<any>([]);
-	const [answered, setAnswered] = useState(false);
-	const [chosenId, setChosenId] = useState<string | null>(null);
-	const [questionQueue, setQuestionQueue] = useState<[]>([]);
+	const [roundAnswers, setRoundAnswers] = useState<RoundAnswer[]>([]);
+	const [selectedId, setSelectedId] = useState<string | null>(null);
 
 	// useEffect(() => {
-	// 	loadViaFetch()
-	// 		.then((data) => {
-	// 			if (!Array.isArray(data) || data.length < 2) {
-	// 				throw new Error('data.json needs at least 2 entries to play.');
-	// 			}
-	// 			setEntries(data);
-	// 		})
-	// 		.catch((err) => setLoadError(err.message));
+	//   fetch(`${import.meta.env.BASE_URL}data.json`, { cache: 'no-store' })
+	//     .then((res) => {
+	//       if (!res.ok) throw new Error(`HTTP ${res.status}`);
+	//       return res.json();
+	//     })
+	//     .then((data: PaintEntry[]) => {
+	//       if (!Array.isArray(data) || data.length < 2) {
+	//         throw new Error('data.json needs at least 2 entries to play.');
+	//       }
+	//       setEntries(data);
+	//     })
+	//     .catch((err: Error) => setLoadError(err.message));
 	// }, []);
 
 	const drawQuestion = useCallback(
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		(queue: any) => {
-			let q = queue;
-			if (q.length === 0) q = shuffledCopy(entries);
-			const entry = q[q.length - 1];
-			return { entry, rest: q.slice(0, -1) };
+		(queue: PaintEntry[]): { entry: PaintEntry; rest: PaintEntry[] } => {
+			const q = queue.length === 0 ? shuffledCopy(entries) : queue;
+			return { entry: q[q.length - 1], rest: q.slice(0, -1) };
 		},
 		[entries],
 	);
+
+	function buildChoices(entry: PaintEntry): PaintEntry[] {
+		const numChoices = Math.min(4, entries.length);
+		const pool = shuffledCopy(entries.filter((e) => e.id !== entry.id));
+		const distractors: PaintEntry[] = [];
+		const usedHex = new Set([entry.hex.toLowerCase()]);
+		for (const e of pool) {
+			if (distractors.length >= numChoices - 1) break;
+			if (usedHex.has(e.hex.toLowerCase())) continue;
+			usedHex.add(e.hex.toLowerCase());
+			distractors.push(e);
+		}
+		return shuffledCopy([entry, ...distractors]);
+	}
+
+	function startRound(queue: PaintEntry[], nextRoundNum: number) {
+		const { entry, rest } = drawQuestion(queue);
+		setCurrentEntry(entry);
+		setChoices(buildChoices(entry));
+		setQuestionQueue(rest);
+		setRoundNum(nextRoundNum);
+		setCurrentPlayerIdx(0);
+		setRoundAnswers([]);
+		setSelectedId(null);
+		setPhase('round');
+	}
+
+	function startGame() {
+		const names = playerNames.map((n) => n.trim()).filter(Boolean);
+		if (names.length === 0) {
+			alert('Add at least one player name.');
+			return;
+		}
+		setScores(names.map((name) => ({ name, score: 0 })));
+		startRound([], 1);
+	}
+
+	const isRoundComplete = currentPlayerIdx >= scores.length;
+
+	function pickChoice(entry: PaintEntry) {
+		if (isRoundComplete) return;
+		setSelectedId(entry.id);
+	}
+
+	function confirmAndPass() {
+		if (!selectedId || !currentEntry) return;
+		const correct = selectedId === currentEntry.id;
+		const answer: RoundAnswer = { playerIdx: currentPlayerIdx, chosenId: selectedId, correct };
+		const updatedAnswers = [...roundAnswers, answer];
+		setRoundAnswers(updatedAnswers);
+
+		const isLastPlayer = currentPlayerIdx >= scores.length - 1;
+		if (isLastPlayer) {
+			setScores((prev) =>
+				prev.map((p, idx) => {
+					const ans = updatedAnswers.find((a) => a.playerIdx === idx);
+					return ans?.correct ? { ...p, score: p.score + 1 } : p;
+				}),
+			);
+		}
+
+		setCurrentPlayerIdx((idx) => idx + 1);
+		setSelectedId(null);
+	}
+
+	function nextRoundOrFinish() {
+		if (roundNum >= totalRounds) {
+			setPhase('final');
+		} else {
+			startRound(questionQueue, roundNum + 1);
+		}
+	}
+
+	function resetToSetup() {
+		setPhase('setup');
+	}
 
 	function updatePlayerName(idx: number, value: string) {
 		setPlayerNames((prev) => prev.map((n, i) => (i === idx ? value : n)));
@@ -105,196 +188,226 @@ function Game() {
 		setPlayerNames((prev) => (prev.length > 1 ? prev.filter((_, i) => i !== idx) : prev));
 	}
 
-	function buildChoices(entry: Entry) {
-		const numChoices = Math.min(4, entries.length);
-		const pool = shuffledCopy(entries.filter((e: Entry) => e.id !== entry.id));
-		const distractors = [];
-		const usedHex = new Set([entry.hex.toLowerCase()]);
-		for (const e of pool) {
-			if (distractors.length >= numChoices - 1) break;
-			if (usedHex.has(e.hex.toLowerCase())) continue;
-			usedHex.add(e.hex.toLowerCase());
-			distractors.push(e);
-		}
-		return shuffledCopy([entry, ...distractors]);
-	}
-
-	function handleAnswer(entry: Entry) {
-		if (answered) return;
-		setAnswered(true);
-		setChosenId(entry.id);
-		const correct = entry.id === currentEntry.id;
-		if (correct) {
-			setScores((prev) =>
-				prev.map((p, idx) => (idx === currentPlayerIdx ? { ...p, score: p.score + 1 } : p)),
-			);
-		}
-	}
-
-	function handleNext() {
-		const nextPlayerIdx = (currentPlayerIdx + 1) % scores.length;
-		setCurrentPlayerIdx(nextPlayerIdx);
-		if (roundNum >= totalRounds) {
-			setPhase('final');
-			return;
-		}
-		startRound(questionQueue, roundNum + 1);
-	}
-
-	function startRound(queue: [], nextRoundNum: number) {
-		const { entry, rest } = drawQuestion(queue);
-		setCurrentEntry(entry);
-		setChoices(buildChoices(entry));
-		setQuestionQueue(rest);
-		setRoundNum(nextRoundNum);
-		setAnswered(false);
-		setChosenId(null);
-	}
-
-	function startGame() {
-		const names = players.map((n) => n.trim()).filter(Boolean);
-		if (names.length === 0) {
-			alert('Add at least one player name.');
-			return;
-		}
-		setScores(names.map((name) => ({ name, score: 0 })));
-		setTotalRounds(names.length * roundsPerPlayer);
-		setPhase('round');
-		startRound([], 1);
-	}
-
-	function resetToSetup() {
-		setPhase('setup');
-	}
-
+	// ---------- Setup ----------
 	if (phase === 'setup') {
 		return (
-			<div className="container-max py-12">
-				<section className="card p-16">
-					<p className="text-amber-400 text-xl font-semibold">New game</p>
-					<h2 className="text-zinc-200 text-4xl font-bold my-4">Who's playing?</h2>
+			<section className="container-max py-12">
+				<div className="card p-16">
+					<p className="mb-1 font-mono text-xs uppercase tracking-widest text-amber-400">
+						New game
+					</p>
+					<h2 className="mb-4 font-sans text-xl font-semibold uppercase tracking-wide text-neutral-100">
+						Who&apos;s playing?
+					</h2>
 
-					{players.map((name, idx) => (
-						<div className="player-row py-2 flex" key={idx}>
+					{playerNames.map((name, idx) => (
+						<div className="mb-2.5 flex gap-2" key={idx}>
 							<input
 								type="text"
 								placeholder="Player name"
 								value={name}
-								className="input w-full mr-2"
 								onChange={(e) => updatePlayerName(idx, e.target.value)}
+								className="flex-1 rounded-sm border border-neutral-700 bg-neutral-700/60 px-3 py-2.5 text-neutral-100 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-amber-400"
 							/>
 							<button
 								type="button"
-								className="btn btn-ghost"
 								onClick={() => removePlayerRow(idx)}
-								title="Remove player">
+								title="Remove player"
+								className="w-10 btn btn-ghost hover:border-red-500 hover:text-red-500">
 								×
 							</button>
 						</div>
 					))}
-					<button type="button" className="btn btn-ghost mt-4" onClick={addPlayerRow}>
+					<button
+						type="button"
+						onClick={addPlayerRow}
+						className="btn btn-ghost hover:bg-neutral-700">
 						+ Add player
 					</button>
 
-					<div className="text-zinc-200 text-xl my-4">
-						<div>Rounds per player</div>
-						<div className="flex justify-between gap-2 mt-4">
-							{[3, 5, 10].map((n) => (
+					<div className="mt-6 mb-1">
+						<label className="mb-1.5 block text-xs uppercase tracking-wide text-neutral-400">
+							Number of rounds
+						</label>
+						<div className="mb-2 flex gap-2">
+							{ROUND_OPTIONS.map((n) => (
 								<button
 									key={n}
 									type="button"
-									className={`btn btn-ghost bg-zinc-800 w-full ${roundsPerPlayer === n ? 'border-amber-400 text-amber-400' : ''}`}
-									onClick={() => setRoundsPerPlayer(n)}>
+									onClick={() => setTotalRounds(n)}
+									className={`flex-1 rounded-sm border px-2.5 py-2.5 font-mono cursor-pointer ${
+										totalRounds === n
+											? 'border-amber-400 bg-amber-400/10 text-amber-400'
+											: 'border-neutral-700 bg-neutral-700/60 text-neutral-400'
+									}`}>
 									{n}
 								</button>
 							))}
 						</div>
+						<p className="text-sm text-neutral-400">
+							Every player answers the same question each round.
+						</p>
 					</div>
 
-					{/* <button className="btn" onClick={startGame} disabled={!!loadError || entries.length === 0}> */}
-					<button className="btn btn-primary mt-4" onClick={startGame}>
+					<button
+						onClick={startGame}
+						disabled={!!loadError || entries.length === 0}
+						className="mt-4 w-full btn btn-primary disabled:cursor-not-allowed disabled:opacity-40">
 						Start game
 					</button>
 
-					{/* {loadError && (
-					<div className="error-box">
-						Could not load data.json — {loadError}. If you're running this locally, make sure the
-						dev server is up (<code>npm run dev</code>); on a fresh clone, check that
-						<code> public/data.json</code> exists.
-					</div>
-				)} */}
-				</section>
-			</div>
+					{loadError && (
+						<div className="mt-5 rounded-sm border border-red-500 bg-red-500/10 p-3.5 font-mono text-sm text-red-400">
+							Could not load data.json — {loadError}
+						</div>
+					)}
+				</div>
+			</section>
 		);
 	}
 
-	// if (phase === 'round' && currentEntry) {
+	// ---------- Round (every player answers the same question in turn) ----------
 	if (phase === 'round' && currentEntry) {
+		const player = scores[currentPlayerIdx];
 		return (
-			<section className="container-max py-12 px-6 text-zinc-400">
-				<div className="flex flex-wrap gap-6 mb-4">
+			<section className="container-max py-12 px-6">
+				<div className="mb-4 flex flex-wrap gap-4">
 					{scores.map((p, idx) => (
 						<div
 							key={idx}
-							className={`text-lg font-semibold border-b-2 border-solid pb-1 ${
-								idx === currentPlayerIdx ? 'text-amber-400 border-amber-400' : 'border-transparent'
+							className={`border-b-2 pb-1 font-mono text-sm ${
+								idx === currentPlayerIdx && !isRoundComplete
+									? 'border-amber-400 text-amber-400'
+									: 'border-transparent text-neutral-400'
 							}`}>
-							{p.name} : <b>{p.score}</b>
+							{p.name} <b className="text-neutral-100">{p.score}</b>
 						</div>
 					))}
 				</div>
 
-				<div className="text-center mb-4">
-					Round {roundNum} of {totalRounds} —{' '}
-					<b className="text-zinc-100">{scores[currentPlayerIdx]?.name}</b>'s turn
+				<div className="mb-4 text-center font-mono text-sm text-neutral-400">
+					{isRoundComplete ? (
+						<>
+							Round {roundNum} of {totalRounds} —{' '}
+							<b className="text-neutral-100">everyone&apos;s answered</b>
+						</>
+					) : (
+						<>
+							Round {roundNum} of {totalRounds} —{' '}
+							<b className="text-amber-400">{player.name}&apos;s</b> pick ({currentPlayerIdx + 1}/
+							{scores.length})
+						</>
+					)}
 				</div>
 
-				<div className="card p-8">
-					<div className="flex justify-between items-baseline pb-4 mb-4 border-b-2 border-dashed border-b-zinc-400">
-						<span className="">Manufacturer</span>
-						<span className="text-zinc-100 text-2xl">{currentEntry.manufacturer}</span>
+				<div className="relative card mb-5 p-6">
+					<div className="pointer-events-none absolute inset-1.5 rounded-sm border border-neutral-700/60" />
+					<div className="flex items-baseline justify-between border-b px-1 py-2">
+						<span className="font-mono text-xs uppercase tracking-wide text-neutral-400">
+							Manufacturer
+						</span>
+						<span className="text-2xl text-zinc-100">{currentEntry.manufacturer}</span>
 					</div>
-					<div className="flex justify-between items-baseline mb-8">
-						<span className="">Paint code</span>
-						<span className="text-amber-400 text-2xl min-h-">{currentEntry.code}</span>
+					<div className="flex items-baseline justify-between px-1 py-2">
+						<span className="font-mono text-xs uppercase tracking-wide text-neutral-400">
+							Paint code
+						</span>
+						<span className="font-mono text-2xl tracking-wide text-amber-400">
+							{currentEntry.code}
+						</span>
 					</div>
 				</div>
 
-				<p className="my-4 text-center">Tap the matching paint chip</p>
+				{!isRoundComplete && (
+					<p className="mb-4 text-center font-mono text-sm text-neutral-400">
+						{player.name}, tap the matching paint chip — tap another to change your answer
+					</p>
+				)}
 
-				<div className="grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-4">
-					{choices.map((entry: any) => {
-						let cls =
-							'relative min-h-32 rounded-[2px_10px_2px_2px] border-none cursor-pointer bg-[var(--c)] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.25),0_6px_14px_rgba(0,0,0,0.35)] transition-transform duration-100 ease-out';
-						if (answered) {
-							if (entry.hex.toLowerCase() === currentEntry.hex.toLowerCase())
-								cls += ' shadow-[0_0_0_3px_rgba(0,0,0,0.35)] ring-3 ring-green-400';
-							else if (entry.id === chosenId)
-								cls += ' shadow-[0_0_0_3px_rgba(0,0,0,0.35)] ring-3 ring-red-400';
-						}
+				<div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+					{choices.map((entry) => {
+						const isSelected = entry.id === selectedId;
 						return (
 							<button
 								key={entry.id}
-								style={{ backgroundColor: entry.hex }}
-								className={cls}
-								disabled={answered}
-								onClick={() => handleAnswer(entry)}
+								onClick={() => pickChoice(entry)}
+								disabled={isRoundComplete}
 								aria-label="Paint chip option"
-							/>
+								style={{ backgroundColor: entry.hex }}
+								className={`cursor-pointer relative h-28 rounded-tr-xl rounded-bl-sm rounded-br-sm shadow-[inset_0_0_0_1px_rgba(0,0,0,0.25),0_6px_14px_rgba(0,0,0,0.35)] transition-transform hover:-translate-y-1 disabled:pointer-events-none disabled:cursor-default disabled:opacity-60 ${
+									isSelected ? 'ring-4 ring-amber-400' : ''
+								}`}>
+								<span className="absolute left-2.5 top-2.5 h-2.5 w-2.5 rounded-full bg-neutral-900 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.3)]" />
+								<span className="absolute right-0 top-0 h-5 w-5 rounded-tr-xl bg-gradient-to-br from-transparent from-50% to-black/25 to-50%" />
+							</button>
 						);
 					})}
 				</div>
 
-				{/* {answered && (
-					<div className={'feedback ' + (wasCorrect ? 'is-correct' : 'is-wrong')}>
-						{wasCorrect
-							? `Correct! ${currentEntry.manufacturer} ${currentEntry.code} is ${currentEntry.hex}.`
-							: `Not quite — ${currentEntry.manufacturer} ${currentEntry.code} is actually ${currentEntry.hex}.`}
-					</div>
-				)} */}
+				{!isRoundComplete && selectedId && (
+					<button onClick={confirmAndPass} className="mt-5 w-full btn btn-primary">
+						{currentPlayerIdx >= scores.length - 1
+							? 'Lock in answer →'
+							: `Lock in — pass to ${scores[currentPlayerIdx + 1].name} →`}
+					</button>
+				)}
 
-				{answered && (
-					<button className="btn btn-primary mt-8" onClick={handleNext}>
+				{roundAnswers.length > 0 && !isRoundComplete && (
+					<div className="mt-6">
+						<p className="mb-2 font-mono text-xs uppercase tracking-widest text-neutral-400">
+							Answered so far
+						</p>
+						<ul className="flex flex-wrap gap-2">
+							{roundAnswers.map((ans) => (
+								<li
+									key={ans.playerIdx}
+									className="rounded-sm border border-neutral-700 px-3 py-1.5 font-mono text-sm text-neutral-300">
+									✓ {scores[ans.playerIdx].name}
+								</li>
+							))}
+						</ul>
+					</div>
+				)}
+
+				{isRoundComplete && (
+					<div className="mt-6">
+						<p className="mb-2 font-mono text-xs uppercase tracking-widest text-neutral-400">
+							Answers this round
+						</p>
+						<ul className="space-y-2">
+							{roundAnswers.map((ans) => {
+								const p = scores[ans.playerIdx];
+								const chosenEntry = choices.find((c) => c.id === ans.chosenId);
+								return (
+									<li
+										key={ans.playerIdx}
+										className={`flex items-center justify-between rounded-sm border px-3.5 py-2.5 font-mono text-sm ${
+											ans.correct
+												? 'border-emerald-600 text-emerald-500'
+												: 'border-red-600 text-red-500'
+										}`}>
+										<span className="flex items-center gap-2 text-neutral-100">
+											<span
+												className="h-4 w-4 rounded shadow-[inset_0_0_0_1px_rgba(0,0,0,0.3)]"
+												style={{ backgroundColor: chosenEntry?.hex }}
+											/>
+											{p.name}
+										</span>
+										<span>{ans.correct ? 'Correct +1' : 'Wrong'}</span>
+									</li>
+								);
+							})}
+						</ul>
+
+						<p className="mt-3 font-mono text-sm text-neutral-400">
+							Answer: {currentEntry.manufacturer} {currentEntry.code}
+							{currentEntry.name ? ` — ${currentEntry.name}` : ''} — {currentEntry.hex}
+						</p>
+					</div>
+				)}
+
+				{isRoundComplete && (
+					<button onClick={nextRoundOrFinish} className="mt-5 w-full btn btn-primary">
 						{roundNum >= totalRounds ? 'See final scores →' : 'Next round →'}
 					</button>
 				)}
@@ -302,33 +415,38 @@ function Game() {
 		);
 	}
 
-	// // final
+	// ---------- Final ----------
 	const ranked = [...scores].sort((a, b) => b.score - a.score);
 	return (
-		<section className="container-max py-12 px-5">
-			<div className='card text-zinc-400 p-8'>
-				<p className="text-amber-400">Game over</p>
-				<p className='text-2xl text-zinc-200'>Final scores</p>
-				<ol className="list-none mt-4">
+		<section className="container-max py-12">
+			<div className="card p-16">
+				<p className="mb-1 font-mono text-xs uppercase tracking-widest text-amber-400">Game over</p>
+				<h2 className="mb-4 font-sans text-xl font-semibold uppercase tracking-wide text-neutral-100">
+					Final scores
+				</h2>
+				<ol className="mb-6 space-y-2">
 					{ranked.map((p, idx) => (
-						<li className='flex justify-between p-4 border-2 border-solid border-zinc-400 mb-4 first:border-amber-400 first:text-amber-400' key={p.name + idx}>
+						<li
+							key={p.name + idx}
+							className={`flex justify-between rounded-sm border px-3.5 py-3 font-mono ${
+								idx === 0
+									? 'border-amber-400 text-amber-400'
+									: 'border-neutral-700 text-neutral-100'
+							}`}>
 							<span>
 								{idx === 0 ? '🏆 ' : ''}
 								{p.name}
 							</span>
 							<span>
-								{p.score} / {roundsPerPlayer}
+								{p.score} / {totalRounds}
 							</span>
 						</li>
 					))}
 				</ol>
-				<button className="btn btn-primary mt-4" onClick={resetToSetup}>
+				<button onClick={resetToSetup} className="w-full rounded-sm btn btn-primary">
 					Play again
 				</button>
 			</div>
 		</section>
 	);
-	return <></>;
 }
-
-export default Game;
