@@ -6,7 +6,7 @@ import { BrowserRouter } from 'react-router';
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
-		<BrowserRouter basename="/paint-code">
+		<BrowserRouter basename={import.meta.env.BASE_URL}>
 			<App />
 		</BrowserRouter>
 	</StrictMode>,

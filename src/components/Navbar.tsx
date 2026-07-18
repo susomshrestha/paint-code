@@ -18,13 +18,13 @@ function NavBar() {
 						to="/">
 						Play
 					</NavLink>
-					<NavLink
+					{/* <NavLink
 						to="/add"
 						className={({ isActive }) =>
 							`py-2 px-4 ${isActive ? 'bg-zinc-800 text-amber-400' : 'hover:text-amber-400'}`
 						}>
 						Add codes
-					</NavLink>
+					</NavLink> */}
 				</nav>
 			</div>
 		</header>
