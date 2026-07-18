@@ -1,0 +1,772 @@
+[
+	{
+		"id": "p001",
+		"manufacturer": "Ford",
+		"code": "UA",
+		"name": "Ebony Black",
+		"hex": "#030303"
+	},
+	{
+		"id": "p002",
+		"manufacturer": "Ford",
+		"code": "YZ",
+		"name": "Oxford White",
+		"hex": "#F4F6F4"
+	},
+	{
+		"id": "p003",
+		"manufacturer": "Ford",
+		"code": "J7",
+		"name": "Magnetic Metallic",
+		"hex": "#4D5052"
+	},
+	{
+		"id": "p004",
+		"manufacturer": "Ford",
+		"code": "UX",
+		"name": "Ingot Silver Metallic",
+		"hex": "#C0C3C4"
+	},
+	{
+		"id": "p005",
+		"manufacturer": "Ford",
+		"code": "PQ",
+		"name": "Race Red",
+		"hex": "#BC0001"
+	},
+	{
+		"id": "p006",
+		"manufacturer": "Ford",
+		"code": "D6",
+		"name": "Screaming Yellow",
+		"hex": "#F7D117"
+	},
+	{
+		"id": "p007",
+		"manufacturer": "Ford",
+		"code": "L6",
+		"name": "Kona Blue Metallic",
+		"hex": "#0D1B3E"
+	},
+	{
+		"id": "p008",
+		"manufacturer": "Ford",
+		"code": "UG",
+		"name": "White Platinum Pearl",
+		"hex": "#F7F5EE"
+	},
+	{
+		"id": "p009",
+		"manufacturer": "Ford",
+		"code": "RR",
+		"name": "Ruby Red Metallic",
+		"hex": "#A10617"
+	},
+	{
+		"id": "p010",
+		"manufacturer": "Ford",
+		"code": "G1",
+		"name": "Shadow Black",
+		"hex": "#0B0B0C"
+	},
+	{
+		"id": "p011",
+		"manufacturer": "General Motors",
+		"code": "WA8554",
+		"name": "Summit White",
+		"hex": "#F7F9FA"
+	},
+	{
+		"id": "p012",
+		"manufacturer": "General Motors",
+		"code": "WA848E",
+		"name": "Black",
+		"hex": "#050505"
+	},
+	{
+		"id": "p013",
+		"manufacturer": "General Motors",
+		"code": "WA636R",
+		"name": "Silver Ice Metallic",
+		"hex": "#BFC1C3"
+	},
+	{
+		"id": "p014",
+		"manufacturer": "General Motors",
+		"code": "WA139X",
+		"name": "Son Of A Gun Gray Metallic",
+		"hex": "#4A4D50"
+	},
+	{
+		"id": "p015",
+		"manufacturer": "General Motors",
+		"code": "WA418C",
+		"name": "Satin Steel Metallic",
+		"hex": "#5D6265"
+	},
+	{
+		"id": "p016",
+		"manufacturer": "General Motors",
+		"code": "WA8624",
+		"name": "Olympic White",
+		"hex": "#FAFAFA"
+	},
+	{
+		"id": "p017",
+		"manufacturer": "General Motors",
+		"code": "WA140X",
+		"name": "Abalone White Tricoat",
+		"hex": "#F2F4F0"
+	},
+	{
+		"id": "p018",
+		"manufacturer": "General Motors",
+		"code": "WA9260",
+		"name": "Victory Red",
+		"hex": "#BF0413"
+	},
+	{
+		"id": "p019",
+		"manufacturer": "General Motors",
+		"code": "WA501Q",
+		"name": "Carbon Flash Metallic",
+		"hex": "#1C1D1F"
+	},
+	{
+		"id": "p020",
+		"manufacturer": "General Motors",
+		"code": "WA252F",
+		"name": "Cherry Bomb Tintcoat",
+		"hex": "#6B0512"
+	},
+	{
+		"id": "p021",
+		"manufacturer": "Chrysler",
+		"code": "PW7",
+		"name": "Bright White",
+		"hex": "#F3F5F3"
+	},
+	{
+		"id": "p022",
+		"manufacturer": "Chrysler",
+		"code": "PXR",
+		"name": "Brilliant Black Pearl",
+		"hex": "#0D0E10"
+	},
+	{
+		"id": "p023",
+		"manufacturer": "Chrysler",
+		"code": "PSC",
+		"name": "Billet Silver Metallic",
+		"hex": "#A9ACAD"
+	},
+	{
+		"id": "p024",
+		"manufacturer": "Chrysler",
+		"code": "PAU",
+		"name": "Granite Crystal Metallic",
+		"hex": "#424547"
+	},
+	{
+		"id": "p025",
+		"manufacturer": "Chrysler",
+		"code": "PR4",
+		"name": "Flame Red",
+		"hex": "#C80C1A"
+	},
+	{
+		"id": "p026",
+		"manufacturer": "Chrysler",
+		"code": "PX8",
+		"name": "Pitch Black",
+		"hex": "#040404"
+	},
+	{
+		"id": "p027",
+		"manufacturer": "Chrysler",
+		"code": "PDN",
+		"name": "Ceramic Gray",
+		"hex": "#7B8184"
+	},
+	{
+		"id": "p028",
+		"manufacturer": "Chrysler",
+		"code": "PRY",
+		"name": "Redline 2 Coat Pearl",
+		"hex": "#A90518"
+	},
+	{
+		"id": "p029",
+		"manufacturer": "Chrysler",
+		"code": "PBM",
+		"name": "Ocean Blue Metallic",
+		"hex": "#112F63"
+	},
+	{
+		"id": "p030",
+		"manufacturer": "Chrysler",
+		"code": "PYV",
+		"name": "High Velocity Yellow",
+		"hex": "#E3E935"
+	},
+	{
+		"id": "p031",
+		"manufacturer": "Toyota",
+		"code": "040",
+		"name": "Super White",
+		"hex": "#F4F7F5"
+	},
+	{
+		"id": "p032",
+		"manufacturer": "Toyota",
+		"code": "202",
+		"name": "Black",
+		"hex": "#0A0A0B"
+	},
+	{
+		"id": "p033",
+		"manufacturer": "Toyota",
+		"code": "1D6",
+		"name": "Silver Sky Metallic",
+		"hex": "#B1B4B6"
+	},
+	{
+		"id": "p034",
+		"manufacturer": "Toyota",
+		"code": "1G3",
+		"name": "Magnetic Gray Metallic",
+		"hex": "#505254"
+	},
+	{
+		"id": "p035",
+		"manufacturer": "Toyota",
+		"code": "070",
+		"name": "Blizzard Pearl",
+		"hex": "#F6F5EE"
+	},
+	{
+		"id": "p036",
+		"manufacturer": "Toyota",
+		"code": "3R3",
+		"name": "Barcelona Red Metallic",
+		"hex": "#8C0C1C"
+	},
+	{
+		"id": "p037",
+		"manufacturer": "Toyota",
+		"code": "218",
+		"name": "Midnight Black Metallic",
+		"hex": "#111316"
+	},
+	{
+		"id": "p038",
+		"manufacturer": "Toyota",
+		"code": "4V6",
+		"name": "Quicksand",
+		"hex": "#BDAC93"
+	},
+	{
+		"id": "p039",
+		"manufacturer": "Toyota",
+		"code": "6V7",
+		"name": "Army Green",
+		"hex": "#404639"
+	},
+	{
+		"id": "p040",
+		"manufacturer": "Toyota",
+		"code": "089",
+		"name": "Wind Chill Pearl",
+		"hex": "#FBFBF9"
+	},
+	{
+		"id": "p041",
+		"manufacturer": "Honda",
+		"code": "NH578",
+		"name": "Taffeta White",
+		"hex": "#F2F5EF"
+	},
+	{
+		"id": "p042",
+		"manufacturer": "Honda",
+		"code": "B92P",
+		"name": "Nighthawk Black Pearl",
+		"hex": "#0C0E12"
+	},
+	{
+		"id": "p043",
+		"manufacturer": "Honda",
+		"code": "NH700M",
+		"name": "Alabaster Silver Metallic",
+		"hex": "#BFC2C3"
+	},
+	{
+		"id": "p044",
+		"manufacturer": "Honda",
+		"code": "NH731P",
+		"name": "Crystal Black Pearl",
+		"hex": "#0B0B0C"
+	},
+	{
+		"id": "p045",
+		"manufacturer": "Honda",
+		"code": "NH788P",
+		"name": "Orchid White Pearl",
+		"hex": "#FAFAF6"
+	},
+	{
+		"id": "p046",
+		"manufacturer": "Honda",
+		"code": "NH797M",
+		"name": "Modern Steel Metallic",
+		"hex": "#515356"
+	},
+	{
+		"id": "p047",
+		"manufacturer": "Honda",
+		"code": "R513",
+		"name": "Rallye Red",
+		"hex": "#CD0813"
+	},
+	{
+		"id": "p048",
+		"manufacturer": "Honda",
+		"code": "B593M",
+		"name": "Aegean Blue Metallic",
+		"hex": "#0A4697"
+	},
+	{
+		"id": "p049",
+		"manufacturer": "Honda",
+		"code": "NH830M",
+		"name": "Lunar Silver Metallic",
+		"hex": "#B1B3B6"
+	},
+	{
+		"id": "p050",
+		"manufacturer": "Honda",
+		"code": "NH0",
+		"name": "Championship White",
+		"hex": "#F3EFE3"
+	},
+	{
+		"id": "p051",
+		"manufacturer": "Nissan",
+		"code": "KH3",
+		"name": "Super Black",
+		"hex": "#030303"
+	},
+	{
+		"id": "p052",
+		"manufacturer": "Nissan",
+		"code": "QX1",
+		"name": "Glacier Pearl White",
+		"hex": "#FAF9F3"
+	},
+	{
+		"id": "p053",
+		"manufacturer": "Nissan",
+		"code": "K23",
+		"name": "Brilliant Silver Metallic",
+		"hex": "#BCBFBF"
+	},
+	{
+		"id": "p054",
+		"manufacturer": "Nissan",
+		"code": "KAD",
+		"name": "Gun Metallic",
+		"hex": "#53565A"
+	},
+	{
+		"id": "p055",
+		"manufacturer": "Nissan",
+		"code": "QM1",
+		"name": "Fresh Powder White",
+		"hex": "#F6F8F5"
+	},
+	{
+		"id": "p056",
+		"manufacturer": "Nissan",
+		"code": "G41",
+		"name": "Magnetic Black Metallic",
+		"hex": "#0E1012"
+	},
+	{
+		"id": "p057",
+		"manufacturer": "Nissan",
+		"code": "RAY",
+		"name": "Deep Blue Pearl",
+		"hex": "#0E244B"
+	},
+	{
+		"id": "p058",
+		"manufacturer": "Nissan",
+		"code": "NBL",
+		"name": "Scarlet Ember Tintcoat",
+		"hex": "#8A0512"
+	},
+	{
+		"id": "p059",
+		"manufacturer": "Nissan",
+		"code": "QAB",
+		"name": "Majestic White Pearl",
+		"hex": "#F4F5EF"
+	},
+	{
+		"id": "p060",
+		"manufacturer": "Nissan",
+		"code": "KBY",
+		"name": "Stealth Gray",
+		"hex": "#62686C"
+	},
+	{
+		"id": "p061",
+		"manufacturer": "Hyundai",
+		"code": "M8S",
+		"name": "Phantom Black Metallic",
+		"hex": "#0B0C0E"
+	},
+	{
+		"id": "p062",
+		"manufacturer": "Hyundai",
+		"code": "WW8",
+		"name": "Polar White",
+		"hex": "#F6F8F6"
+	},
+	{
+		"id": "p063",
+		"manufacturer": "Hyundai",
+		"code": "T6S",
+		"name": "Typhoon Silver Metallic",
+		"hex": "#B8BBBD"
+	},
+	{
+		"id": "p064",
+		"manufacturer": "Hyundai",
+		"code": "Y7H",
+		"name": "Amazon Gray Metallic",
+		"hex": "#43494A"
+	},
+	{
+		"id": "p065",
+		"manufacturer": "Hyundai",
+		"code": "SWP",
+		"name": "Snow White Pearl",
+		"hex": "#F8F8F4"
+	},
+	{
+		"id": "p066",
+		"manufacturer": "Hyundai",
+		"code": "EB",
+		"name": "Ebony Black",
+		"hex": "#040404"
+	},
+	{
+		"id": "p067",
+		"manufacturer": "Hyundai",
+		"code": "ABP",
+		"name": "Aurora Black Pearl",
+		"hex": "#0D0E11"
+	},
+	{
+		"id": "p068",
+		"manufacturer": "Hyundai",
+		"code": "PR2",
+		"name": "Fiery Red Metallic",
+		"hex": "#9A0B13"
+	},
+	{
+		"id": "p069",
+		"manufacturer": "Hyundai",
+		"code": "H8G",
+		"name": "Cyber Gray Metallic",
+		"hex": "#8A9094"
+	},
+	{
+		"id": "p070",
+		"manufacturer": "Hyundai",
+		"code": "X5B",
+		"name": "Performance Blue",
+		"hex": "#9EC1D9"
+	},
+	{
+		"id": "p071",
+		"manufacturer": "Mazda",
+		"code": "46V",
+		"name": "Soul Red Crystal Metallic",
+		"hex": "#A20614"
+	},
+	{
+		"id": "p072",
+		"manufacturer": "Mazda",
+		"code": "46G",
+		"name": "Machine Gray Metallic",
+		"hex": "#46494C"
+	},
+	{
+		"id": "p073",
+		"manufacturer": "Mazda",
+		"code": "25D",
+		"name": "Snowflake White Pearl",
+		"hex": "#F6F6F2"
+	},
+	{
+		"id": "p074",
+		"manufacturer": "Mazda",
+		"code": "A4D",
+		"name": "Arctic White",
+		"hex": "#F5F8F6"
+	},
+	{
+		"id": "p075",
+		"manufacturer": "Mazda",
+		"code": "16W",
+		"name": "Black Mica",
+		"hex": "#090A0C"
+	},
+	{
+		"id": "p076",
+		"manufacturer": "Mazda",
+		"code": "42S",
+		"name": "Titanium Flash Mica",
+		"hex": "#3E3B38"
+	},
+	{
+		"id": "p077",
+		"manufacturer": "Mazda",
+		"code": "42M",
+		"name": "Deep Crystal Blue Mica",
+		"hex": "#0C172A"
+	},
+	{
+		"id": "p078",
+		"manufacturer": "Mazda",
+		"code": "45P",
+		"name": "Sonic Silver Metallic",
+		"hex": "#B9BCBE"
+	},
+	{
+		"id": "p079",
+		"manufacturer": "Mazda",
+		"code": "47C",
+		"name": "Polymetal Gray Metallic",
+		"hex": "#5F676E"
+	},
+	{
+		"id": "p080",
+		"manufacturer": "Mazda",
+		"code": "47S",
+		"name": "Platinum Quartz Metallic",
+		"hex": "#CCD0C4"
+	},
+	{
+		"id": "p081",
+		"manufacturer": "BMW",
+		"code": "300",
+		"name": "Alpine White III",
+		"hex": "#FAFBF7"
+	},
+	{
+		"id": "p082",
+		"manufacturer": "BMW",
+		"code": "475",
+		"name": "Black Sapphire Metallic",
+		"hex": "#0B0C0E"
+	},
+	{
+		"id": "p083",
+		"manufacturer": "BMW",
+		"code": "668",
+		"name": "Jet Black",
+		"hex": "#030303"
+	},
+	{
+		"id": "p084",
+		"manufacturer": "BMW",
+		"code": "A83",
+		"name": "Glacier Silver Metallic",
+		"hex": "#BFC1C2"
+	},
+	{
+		"id": "p085",
+		"manufacturer": "BMW",
+		"code": "B39",
+		"name": "Mineral Gray Metallic",
+		"hex": "#4D5154"
+	},
+	{
+		"id": "p086",
+		"manufacturer": "BMW",
+		"code": "A96",
+		"name": "Mineral White Metallic",
+		"hex": "#F7F6EE"
+	},
+	{
+		"id": "p087",
+		"manufacturer": "BMW",
+		"code": "C1K",
+		"name": "Marina Bay Blue Metallic",
+		"hex": "#063A84"
+	},
+	{
+		"id": "p088",
+		"manufacturer": "BMW",
+		"code": "C31",
+		"name": "Portimao Blue Metallic",
+		"hex": "#0C439B"
+	},
+	{
+		"id": "p089",
+		"manufacturer": "BMW",
+		"code": "C4G",
+		"name": "Isle Of Man Green Metallic",
+		"hex": "#075440"
+	},
+	{
+		"id": "p090",
+		"manufacturer": "BMW",
+		"code": "C4P",
+		"name": "Brooklyn Gray Metallic",
+		"hex": "#A7ADB2"
+	},
+	{
+		"id": "p091",
+		"manufacturer": "Volkswagen",
+		"code": "LC9A",
+		"name": "Pure White",
+		"hex": "#F5F8F5"
+	},
+	{
+		"id": "p092",
+		"manufacturer": "Volkswagen",
+		"code": "L041",
+		"name": "Black",
+		"hex": "#030303"
+	},
+	{
+		"id": "p093",
+		"manufacturer": "Volkswagen",
+		"code": "LA7W",
+		"name": "Reflex Silver Metallic",
+		"hex": "#BCC0C1"
+	},
+	{
+		"id": "p094",
+		"manufacturer": "Volkswagen",
+		"code": "LD7X",
+		"name": "Platinum Gray Metallic",
+		"hex": "#565A5D"
+	},
+	{
+		"id": "p095",
+		"manufacturer": "Volkswagen",
+		"code": "LY7C",
+		"name": "Nardo Gray",
+		"hex": "#8A9196"
+	},
+	{
+		"id": "p096",
+		"manufacturer": "Volkswagen",
+		"code": "LC9X",
+		"name": "Deep Black Pearl",
+		"hex": "#0A0B0D"
+	},
+	{
+		"id": "p097",
+		"manufacturer": "Volkswagen",
+		"code": "LP3G",
+		"name": "Flash Red",
+		"hex": "#BF0411"
+	},
+	{
+		"id": "p098",
+		"manufacturer": "Volkswagen",
+		"code": "LR7H",
+		"name": "Indium Gray Metallic",
+		"hex": "#4B4E50"
+	},
+	{
+		"id": "p099",
+		"manufacturer": "Volkswagen",
+		"code": "LY3D",
+		"name": "Tornado Red",
+		"hex": "#C40513"
+	},
+	{
+		"id": "p100",
+		"manufacturer": "Volkswagen",
+		"code": "LX5R",
+		"name": "Monsoon Gray Metallic",
+		"hex": "#5C6164"
+	},
+	{
+		"id": "p101",
+		"manufacturer": "Mercedes-Benz",
+		"code": "149",
+		"name": "Polar White",
+		"hex": "#F6F9F6"
+	},
+	{
+		"id": "p102",
+		"manufacturer": "Mercedes-Benz",
+		"code": "040",
+		"name": "Black",
+		"hex": "#030303"
+	},
+	{
+		"id": "p103",
+		"manufacturer": "Mercedes-Benz",
+		"code": "775",
+		"name": "Iridium Silver Metallic",
+		"hex": "#BCC0C2"
+	},
+	{
+		"id": "p104",
+		"manufacturer": "Mercedes-Benz",
+		"code": "799",
+		"name": "Diamond White Pearl",
+		"hex": "#FAF8F0"
+	},
+	{
+		"id": "p105",
+		"manufacturer": "Mercedes-Benz",
+		"code": "197",
+		"name": "Obsidian Black Metallic",
+		"hex": "#090A0C"
+	},
+	{
+		"id": "p106",
+		"manufacturer": "Mercedes-Benz",
+		"code": "992",
+		"name": "Selenite Gray Metallic",
+		"hex": "#53575A"
+	},
+	{
+		"id": "p107",
+		"manufacturer": "Mercedes-Benz",
+		"code": "896",
+		"name": "Brilliant Blue Metallic",
+		"hex": "#0D3875"
+	},
+	{
+		"id": "p108",
+		"manufacturer": "Mercedes-Benz",
+		"code": "996",
+		"name": "Cardinal Red Metallic",
+		"hex": "#920612"
+	},
+	{
+		"id": "p109",
+		"manufacturer": "Mercedes-Benz",
+		"code": "9197",
+		"name": "Obsidian Black",
+		"hex": "#08090A"
+	},
+	{
+		"id": "p110",
+		"manufacturer": "Mercedes-Benz",
+		"code": "650",
+		"name": "Cirrus White",
+		"hex": "#F3F5F1"
+	}
+]

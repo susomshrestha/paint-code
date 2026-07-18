@@ -1,18 +1,28 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import {
+	subscribeToPaintEntries,
+	savePaintEntry,
+	deletePaintEntry,
+	type PaintEntry,
+} from '../lib/firestoreStore';
+
+// Props every tab receives — a tab only has to use the ones it needs
+interface TabProps {
+	onAdd: (entry: PaintEntry) => void;
+}
 
 // 1. Properly Type the Tabs Structure
 interface TabItem {
 	id: string;
 	label: string;
 	// Store the component itself, not a rendered instance or random syntax
-	component: React.ComponentType;
+	component: React.ComponentType<TabProps>;
 }
 
 // 2. Define the Tabs Configuration
 const TABS: Record<string, TabItem> = {
 	manual: { id: 'manual', label: 'Manual', component: ManualTab },
 	lookup: { id: 'lookup', label: 'Lookup', component: LookupTab },
-	load: { id: 'load', label: 'Load', component: LoadTab },
 };
 
 interface FormState {
@@ -24,16 +34,12 @@ interface FormState {
 
 const HEX_RE = /^#[0-9A-Fa-f]{6}$/;
 
-// --- Sub-components for Content ---
-function LookupTab() {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function LookupTab(_props: TabProps) {
 	return <div className="text-zinc-300">Lookup Panel Content</div>;
 }
 
-function LoadTab() {
-	return <div className="text-zinc-300">Load Panel Content</div>;
-}
-
-function ManualTab() {
+function ManualTab({ onAdd }: TabProps) {
 	const [form, setForm] = useState<FormState>({
 		manufacturer: '',
 		code: '',
@@ -45,14 +51,26 @@ function ManualTab() {
 		setForm((prev) => ({ ...prev, [key]: value }));
 	};
 
-	const handleAdd = (e: React.SubmitEvent<HTMLFormElement>): void => {
+	const handleAdd = (e: React.FormEvent<HTMLFormElement>): void => {
 		e.preventDefault();
-		console.log('Submitting form data:', form);
+		const manufacturer = form.manufacturer.trim();
+		const code = form.code.trim();
+		if (!manufacturer || !code || !HEX_RE.test(form.hex)) return;
+
+		onAdd({
+			id: 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+			manufacturer,
+			code,
+			name: form.name.trim() || null,
+			hex: form.hex.toUpperCase(),
+		});
+
+		setForm({ manufacturer: '', code: '', name: '', hex: '' });
 	};
 
 	return (
-		<section className="w-fullbg-zinc-800/50 backdrop-blur-sm">
-			<p className="text-xs uppercase tracking-wider text-zinc-500 font-bold mb-1">Step 2</p>
+		<section className="w-full">
+			<p className="text-xs uppercase tracking-wider text-zinc-500 font-bold mb-1">Step 1</p>
 			<h2 className="text-xl font-bold text-zinc-100 mb-6">Add a paint code</h2>
 
 			<form onSubmit={handleAdd} className="space-y-5">
@@ -147,8 +165,51 @@ function ManualTab() {
 
 // --- Main Layout ---
 function Add() {
-	// 3. Single Source of Truth: Only track the string ID
 	const [activeTab, setActiveTab] = useState<string>(TABS.manual.id);
+	const [entries, setEntries] = useState<PaintEntry[]>([]);
+	const [syncStatus, setSyncStatus] = useState<{ text: string; isError: boolean } | null>({
+		text: 'Connecting…',
+		isError: false,
+	});
+	const [actionStatus, setActionStatus] = useState<{ text: string; isError: boolean } | null>(null);
+
+	useEffect(() => {
+		const unsubscribe = subscribeToPaintEntries(
+			(data) => {
+				setEntries(data);
+				setSyncStatus({ text: `Synced live — ${data.length} entries.`, isError: false });
+			},
+			(err) => setSyncStatus({ text: `Sync error: ${err.message}`, isError: true }),
+		);
+		return unsubscribe;
+	}, []);
+
+	// ---- WRITE (add) ----
+	const handleAdd = async (entry: PaintEntry): Promise<void> => {
+		try {
+			await savePaintEntry(entry);
+			setActionStatus({ text: `Added ${entry.manufacturer} ${entry.code}.`, isError: false });
+		} catch (err) {
+			setActionStatus({
+				text: err instanceof Error ? err.message : 'Could not add entry.',
+				isError: true,
+			});
+		}
+	};
+
+	// ---- WRITE (remove) ----
+	const handleRemove = async (id: string): Promise<void> => {
+		try {
+			await deletePaintEntry(id);
+		} catch (err) {
+			setActionStatus({
+				text: err instanceof Error ? err.message : 'Could not remove entry.',
+				isError: true,
+			});
+		}
+	};
+
+	const tabProps: TabProps = { onAdd: handleAdd };
 
 	return (
 		<div className="container-max py-12">
@@ -187,11 +248,77 @@ function Add() {
 								key={tab.id}
 								// 2. Kept relative so the parent can naturally calculate height
 								className="w-full transition-all duration-300 ease-in-out opacity-100 translate-x-0">
-								<TabContentComponent />
+								<TabContentComponent {...tabProps} />
 							</div>
 						);
 					})}
 				</div>
+			</div>
+
+			{/* ---- Deck list — reflects the live subscription, updates as anyone adds/removes ---- */}
+			<div className="mt-8 card p-16">
+				<div className="flex items-center justify-between mb-6">
+					<div>
+						<p className="text-xs uppercase tracking-wider text-zinc-500 font-bold mb-1">Step 2</p>
+						<h2 className="text-xl font-bold text-zinc-100">Deck ({entries.length} entries)</h2>
+					</div>
+					{syncStatus && (
+						<p className={`text-sm ${syncStatus.isError ? 'text-red-400' : 'text-zinc-500'}`}>
+							{syncStatus.text}
+						</p>
+					)}
+				</div>
+
+				{entries.length === 0 ? (
+					<p className="text-zinc-500 text-sm">No entries yet — add one above.</p>
+				) : (
+					<div className="overflow-x-auto">
+						<table className="w-full text-sm">
+							<thead>
+								<tr className="text-left text-xs uppercase tracking-wider text-zinc-500 border-b border-zinc-700">
+									<th className="py-2 pr-3 font-semibold"></th>
+									<th className="py-2 pr-3 font-semibold">Manufacturer</th>
+									<th className="py-2 pr-3 font-semibold">Code</th>
+									<th className="py-2 pr-3 font-semibold">Name</th>
+									<th className="py-2 pr-3 font-semibold">Hex</th>
+									<th className="py-2 font-semibold"></th>
+								</tr>
+							</thead>
+							<tbody>
+								{entries.map((entry) => (
+									<tr key={entry.id} className="border-b border-zinc-800">
+										<td className="py-2.5 pr-3">
+											<span
+												className="inline-block w-4.5 h-4.5 rounded shadow-[inset_0_0_0_1px_rgba(0,0,0,0.3)]"
+												style={{ backgroundColor: entry.hex }}
+											/>
+										</td>
+										<td className="py-2.5 pr-3 text-zinc-200">{entry.manufacturer}</td>
+										<td className="py-2.5 pr-3 font-mono text-amber-400">{entry.code}</td>
+										<td className="py-2.5 pr-3 text-zinc-400">{entry.name ?? '—'}</td>
+										<td className="py-2.5 pr-3 font-mono text-zinc-400">{entry.hex}</td>
+										<td className="py-2.5 text-right">
+											<button
+												type="button"
+												onClick={() => handleRemove(entry.id)}
+												title="Remove"
+												className="text-zinc-500 hover:text-red-400">
+												✕
+											</button>
+										</td>
+									</tr>
+								))}
+							</tbody>
+						</table>
+					</div>
+				)}
+
+				{actionStatus && (
+					<p
+						className={`text-sm mt-4 ${actionStatus.isError ? 'text-red-400' : 'text-emerald-400'}`}>
+						{actionStatus.text}
+					</p>
+				)}
 			</div>
 		</div>
 	);

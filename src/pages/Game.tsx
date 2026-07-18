@@ -1,33 +1,6 @@
-const INITIAL_ENTRIES = [
-	{ id: 'p001', manufacturer: 'Toyota', code: '040', name: 'Super White', hex: '#F0F1ED' },
-	{
-		id: 'p002',
-		manufacturer: 'Honda',
-		code: 'NH731P',
-		name: 'Crystal Black Pearl',
-		hex: '#0B0B0C',
-	},
-	{ id: 'p003', manufacturer: 'Ford', code: 'UA', name: 'Oxford White', hex: '#F2F1E8' },
-	{ id: 'p004', manufacturer: 'Chevrolet', code: 'GBA', name: 'Summit White', hex: '#EFEEE7' },
-	{ id: 'p005', manufacturer: 'BMW', code: '300', name: 'Alpine White', hex: '#E9EBED' },
-	{
-		id: 'p006',
-		manufacturer: 'Mercedes-Benz',
-		code: '040',
-		name: 'Obsidian Black',
-		hex: '#111213',
-	},
-	{ id: 'p007', manufacturer: 'Nissan', code: 'K23', name: 'Gun Metallic', hex: '#5B5E62' },
-	{ id: 'p008', manufacturer: 'Mazda', code: '46V', name: 'Soul Red Crystal', hex: '#8C1D22' },
-	{ id: 'p009', manufacturer: 'Volkswagen', code: 'LC9X', name: 'Pure White', hex: '#EDEEEA' },
-	{ id: 'p010', manufacturer: 'Audi', code: 'LY7W', name: 'Ibis White', hex: '#EAEAE4' },
-	{ id: 'p011', manufacturer: 'Kia', code: 'ABP', name: 'Aurora Black Pearl', hex: '#161616' },
-	{ id: 'p012', manufacturer: 'Hyundai', code: 'S3U', name: 'Shimmering Silver', hex: '#A9ACAE' },
-	{ id: 'p013', manufacturer: 'Subaru', code: 'K1X', name: 'WR Blue Pearl', hex: '#1C3D7C' },
-	{ id: 'p014', manufacturer: 'Tesla', code: 'PPMR', name: 'Multi-Coat Red', hex: '#A6120D' },
-];
-
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { getPaintEntries } from '../lib/firestoreStore';
+import { loadViaFetch } from '../lib/dataStore';
 
 interface PaintEntry {
 	id: string;
@@ -62,8 +35,8 @@ function shuffledCopy<T>(arr: T[]): T[] {
 }
 
 export default function Game() {
-	const [entries] = useState<PaintEntry[]>(INITIAL_ENTRIES);
-	const [loadError] = useState('');
+	const [entries, setEntries] = useState<PaintEntry[]>([]);
+	const [loadError, setLoadError] = useState('');
 
 	const [playerNames, setPlayerNames] = useState<string[]>(['', '']);
 	const [totalRounds, setTotalRounds] = useState(5);
@@ -79,20 +52,32 @@ export default function Game() {
 	const [roundAnswers, setRoundAnswers] = useState<RoundAnswer[]>([]);
 	const [selectedId, setSelectedId] = useState<string | null>(null);
 
-	// useEffect(() => {
-	//   fetch(`${import.meta.env.BASE_URL}data.json`, { cache: 'no-store' })
-	//     .then((res) => {
-	//       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-	//       return res.json();
-	//     })
-	//     .then((data: PaintEntry[]) => {
-	//       if (!Array.isArray(data) || data.length < 2) {
-	//         throw new Error('data.json needs at least 2 entries to play.');
-	//       }
-	//       setEntries(data);
-	//     })
-	//     .catch((err: Error) => setLoadError(err.message));
-	// }, []);
+	useEffect(() => {
+		async function loadEntries(): Promise<PaintEntry[]> {
+			try {
+				const data = await getPaintEntries();
+				if (Array.isArray(data) && data.length >= 15) return data;
+				console.warn('Firestore deck has fewer than 15 entries — falling back to data.json.');
+			} catch (err) {
+				console.warn(
+					'Could not load from Firestore, falling back to data.json:',
+					(err as Error).message,
+				);
+			}
+			return loadViaFetch<PaintEntry[]>();
+		}
+
+		loadEntries()
+			.then((data) => {
+				if (!Array.isArray(data) || data.length < 2) {
+					throw new Error(
+						'Need at least 2 entries in the deck to play — add some on the Add page.',
+					);
+				}
+				setEntries(data);
+			})
+			.catch((err: Error) => setLoadError(err.message));
+	}, []);
 
 	const drawQuestion = useCallback(
 		(queue: PaintEntry[]): { entry: PaintEntry; rest: PaintEntry[] } => {
@@ -327,6 +312,7 @@ export default function Game() {
 				<div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
 					{choices.map((entry) => {
 						const isSelected = entry.id === selectedId;
+						const isCorrectChip = isRoundComplete && entry.id === currentEntry.id;
 						return (
 							<button
 								key={entry.id}
@@ -334,11 +320,15 @@ export default function Game() {
 								disabled={isRoundComplete}
 								aria-label="Paint chip option"
 								style={{ backgroundColor: entry.hex }}
-								className={`cursor-pointer relative h-28 rounded-tr-xl rounded-bl-sm rounded-br-sm shadow-[inset_0_0_0_1px_rgba(0,0,0,0.25),0_6px_14px_rgba(0,0,0,0.35)] transition-transform hover:-translate-y-1 disabled:pointer-events-none disabled:cursor-default disabled:opacity-60 ${
-									isSelected ? 'ring-4 ring-amber-400' : ''
+								className={`relative h-28 rounded-tr-xl rounded-bl-sm rounded-br-sm shadow-[inset_0_0_0_1px_rgba(0,0,0,0.25),0_6px_14px_rgba(0,0,0,0.35)] transition-transform hover:-translate-y-1 disabled:pointer-events-none disabled:cursor-default ${
+									isCorrectChip
+										? 'ring-4 ring-emerald-500 disabled:opacity-100'
+										: isSelected
+											? 'ring-4 ring-amber-400 disabled:opacity-60'
+											: 'disabled:opacity-60'
 								}`}>
 								<span className="absolute left-2.5 top-2.5 h-2.5 w-2.5 rounded-full bg-neutral-900 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.3)]" />
-								<span className="absolute right-0 top-0 h-5 w-5 rounded-tr-xl bg-gradient-to-br from-transparent from-50% to-black/25 to-50%" />
+								<span className="absolute right-0 top-0 h-5 w-5 rounded-tr-xl bg-linear-to-br from-transparent from-50% to-black/25 to-50%" />
 							</button>
 						);
 					})}
