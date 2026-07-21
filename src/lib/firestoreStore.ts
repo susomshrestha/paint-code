@@ -5,17 +5,11 @@ import {
 	getDocs,
 	onSnapshot,
 	setDoc,
+	writeBatch,
 	type Unsubscribe,
 } from 'firebase/firestore';
 import { db } from './firebase';
-
-export interface PaintEntry {
-	id: string;
-	manufacturer: string;
-	code: string;
-	name: string | null;
-	hex: string;
-}
+import type { PaintEntry } from '../interfaces';
 
 const paintCodesRef = collection(db, 'paintCodes');
 
@@ -49,4 +43,20 @@ export async function savePaintEntry(entry: PaintEntry): Promise<void> {
 // ---- WRITE (remove one entry) ----
 export async function deletePaintEntry(id: string): Promise<void> {
 	await deleteDoc(doc(db, 'paintCodes', id));
+}
+
+export async function savePaintEntriesBatch(entries: PaintEntry[]): Promise<void> {
+	const BATCH_SIZE = 500;
+
+	for (let i = 0; i < entries.length; i += BATCH_SIZE) {
+		const batch = writeBatch(db);
+		const chunk = entries.slice(i, i + BATCH_SIZE);
+
+		for (const entry of chunk) {
+			const { id, ...data } = entry;
+			batch.set(doc(db, 'paintCodes', id), data);
+		}
+
+		await batch.commit();
+	}
 }

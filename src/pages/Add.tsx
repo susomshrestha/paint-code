@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import {
-	subscribeToPaintEntries,
-	savePaintEntry,
-	deletePaintEntry,
-	type PaintEntry,
-} from '../lib/firestoreStore';
+import { subscribeToPaintEntries, savePaintEntry, deletePaintEntry } from '../lib/firestoreStore';
+import type { PaintEntry } from '../interfaces';
 
 // Props every tab receives — a tab only has to use the ones it needs
 interface TabProps {

@@ -1,14 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getPaintEntries } from '../lib/firestoreStore';
 import { loadViaFetch } from '../lib/dataStore';
-
-interface PaintEntry {
-	id: string;
-	manufacturer: string;
-	code: string;
-	name?: string | null;
-	hex: string;
-}
+import { colorDistance } from '../lib/colorDistance';
+import type { PaintEntry } from '../interfaces';
 
 interface PlayerScore {
 	name: string;
@@ -24,6 +18,7 @@ interface RoundAnswer {
 type Phase = 'setup' | 'round' | 'final';
 
 const ROUND_OPTIONS = [3, 5, 10, 15];
+const MIN_DISTRACTOR_DISTANCE = 10;
 
 function shuffledCopy<T>(arr: T[]): T[] {
 	const a = [...arr];
@@ -89,15 +84,27 @@ export default function Game() {
 
 	function buildChoices(entry: PaintEntry): PaintEntry[] {
 		const numChoices = Math.min(4, entries.length);
-		const pool = shuffledCopy(entries.filter((e) => e.id !== entry.id));
-		const distractors: PaintEntry[] = [];
+
 		const usedHex = new Set([entry.hex.toLowerCase()]);
-		for (const e of pool) {
-			if (distractors.length >= numChoices - 1) break;
+		const farEnough: PaintEntry[] = [];
+		const tooClose: PaintEntry[] = [];
+		for (const e of entries) {
+			if (e.id === entry.id) continue;
 			if (usedHex.has(e.hex.toLowerCase())) continue;
 			usedHex.add(e.hex.toLowerCase());
-			distractors.push(e);
+			if (colorDistance(entry.hex, e.hex) < MIN_DISTRACTOR_DISTANCE) {
+				tooClose.push(e);
+			} else {
+				farEnough.push(e);
+			}
 		}
+
+		let pool = shuffledCopy(farEnough);
+		if (pool.length < numChoices - 1) {
+			pool = pool.concat(shuffledCopy(tooClose));
+		}
+
+		const distractors = pool.slice(0, numChoices - 1);
 		return shuffledCopy([entry, ...distractors]);
 	}
 
